@@ -37,6 +37,7 @@
 *~
 *.py.swp
 *.prototxt.swp
+.*.prototxt.swp
 .*.swp
 .*.swo
 
