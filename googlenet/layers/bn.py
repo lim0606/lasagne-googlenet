@@ -1,5 +1,6 @@
 import numpy as np
 import theano.tensor as T
+import theano
 
 from lasagne import init # from .. import init
 from lasagne import nonlinearities # from .. import nonlinearities
@@ -85,12 +86,14 @@ class BNLayer(Layer):
  
     def get_output_for(self, input, **kwargs):
         if input.ndim is 4: # 4d tensor
-            self.mean = T.mean(input, axis=[0, 2, 3]).dimshuffle(('x', 0, 'x', 'x'))
-            self.var = T.sum(T.sqr(input - self.mean), axis=[0, 2, 3]).dimshuffle(('x', 0, 'x', 'x')) / self.input_shape[0]
+            self.mean = T.mean(input, axis=[0, 2, 3], keepdims=True) #self.mean = T.mean(input, axis=[0, 2, 3]).dimshuffle(('x', 0, 'x', 'x'))
+            #self.var = T.std(input, axis=[0, 2, 3], keepdims=True) 
+            self.var = T.sum(T.sqr(input - self.mean), axis=[0, 2, 3], keepdims=True) / np.array([self.input_shape[0] * self.input_shape[2] * self.input_shape[3]], dtype=theano.config.floatX)
 
         else: # elif input.ndim is 2: # 2d matrix
-            self.mean = T.mean(input, axis=0).dimshuffle(('x',0))
-            self.var = T.sum(T.sqr(input - self.mean), axis=0).dimshuffle(('x', 0)) / self.input_shape[0]
+            self.mean = T.mean(input, axis=0, keepdims=True) #self.mean = T.mean(input, axis=0).dimshuffle(('x',0))
+            #self.var = T.std(input, axis=0, keepdims=True) 
+            self.var = T.sum(T.sqr(input - self.mean), axis=0, keepdims=True) / np.array([self.input_shape[0]], dtype=theano.config.floatX) 
 
         activation = (input - self.mean) / T.sqrt(self.var + self.epsilon)
         activation = self.gamma * activation + self.beta

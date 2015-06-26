@@ -30,9 +30,9 @@ except:
 #print "X_train.shape: ", X_train.shape
 #print "X_train[0,:]", X_train[0,:]
 #print "y_train.shape: ", y_train.shape
-X_train = np.random.rand(128, 3, 224, 224)
+X_train = np.random.rand(128, 3, 224, 224).astype(theano.config.floatX)
 y_train = np.random.randint(0, 1000, 128).reshape((128,))
-X_valid = np.random.rand(128, 3, 224, 224)
+X_valid = np.random.rand(128, 3, 224, 224).astype(theano.config.floatX)
 y_valid = np.random.randint(0, 1000, 128).reshape((128,))
 
  
@@ -1717,6 +1717,8 @@ with open(output_filename, "w") as f:
                                                                         
 #num_epochs = 100
 for epoch_num in range(num_epochs):
+    start_time = time.time()
+
     # iterate over training minibatches and update the weights
     num_batches_train = int(np.ceil(len(X_train) / batchsize))
     train_losses = []
@@ -1733,16 +1735,19 @@ for epoch_num in range(num_epochs):
          
         train_losses.append(loss)
 
-        if (epoch_num * batchsize + batch_num + 1) is 1:
-            start_time = time.time()
+        #if (epoch_num * batchsize + batch_num + 1) is 1:
+        #    start_time = time.time()
 
-        if (epoch_num * batchsize + batch_num + 1) % 1 is 0:
+        '''if (epoch_num * batchsize + batch_num + 1) % 10 is 0:
             end_time = time.time()
             
-            out_str = "Iter: %d, train_loss=%f    (%.3f sec)" % (epoch_num * batchsize + batch_num + 1, loss, end_time-start_time)
+            out_str = "Iter: %d, train_loss=%f    (%.3f sec)" % (epoch_num * num_batches_train + batch_num + 1, loss, end_time-start_time)
             print(out_str)
             start_time = time.time()
-     
+        '''
+    end_time = time.time()
+    out_str = "Iter: %d, train_loss=%f    (%.3f sec)" % (epoch_num * num_batches_train + batch_num + 1, loss, end_time-start_time)
+    print(out_str)
     # aggregate training losses for each minibatch into scalar
     train_loss = np.mean(train_losses)
 
