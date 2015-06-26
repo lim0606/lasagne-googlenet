@@ -35,6 +35,8 @@
 # Editor temporaries
 *.swp
 *~
+*.py.swp
+*.prototxt.swp
 
 # Sublime Text settings
 *.sublime-workspace
