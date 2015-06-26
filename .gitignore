@@ -37,6 +37,8 @@
 *~
 *.py.swp
 *.prototxt.swp
+.*.swp
+.*.swo
 
 # Sublime Text settings
 *.sublime-workspace

@@ -38,7 +38,7 @@ y_valid = np.random.randint(0, 1000, 128).reshape((128,))
  
 # Step 1: initialization ##############################
 num_data = X_train.shape[0]
-batchsize = 48
+batchsize = 32
 update_rules = 'momentum' # you can choose either 1) momentum, 2) adagrad, and 3) adagrad_w_prior. 
 num_epochs = 70
 

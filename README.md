@@ -1,5 +1,5 @@
-# VAE
-re-implementation of variational auto-encoder (http://arxiv.org/abs/1312.6114) with Lasagne.
+# GoogLeNet
+re-implementation of googlenet with batchnormalization with Lasagne.
 
 # Settings
 Ubuntu 14.04
@@ -12,9 +12,8 @@ scipy 0.16.0b2
 
 Theano 0.7 
 
-Lasagne 9b48d675dbaa6f1255003cb2b76fab7deed65961
+Lasagne 9f591a5f3a192028df9947ba1e4903b3b46e8fe0
 
 # refs
-1. http://arxiv.org/abs/1312.6114
-2. http://vdumoulin.github.io/articles/vae-demo/
-3. https://github.com/y0ast/Variational-Autoencoder
+1. http://arxiv.org/abs/1502.03167
+2. http://arxiv.org/abs/1409.4842
