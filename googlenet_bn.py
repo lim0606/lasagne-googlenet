@@ -1706,7 +1706,7 @@ from utils import batchiterator
 batchitertrain = batchiterator.BatchIterator(range(num_data), batchsize, data=(X_train, y_train))
 batchitertrain = batchiterator.threaded_generator(batchitertrain,3)
                                                                                 
-batchiterval = batchiterator.BatchIterator(range(X_valid.shape[0]), batchsize, data=(X_valid, y_train)) 
+batchiterval = batchiterator.BatchIterator(range(X_valid.shape[0]), batchsize, data=(X_valid, y_valid)) 
 batchiterval = batchiterator.threaded_generator(batchiterval,3)             
 
 import datetime
