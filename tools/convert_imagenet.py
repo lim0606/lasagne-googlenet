@@ -55,5 +55,5 @@ for idx in range(int(math.ceil(len(Inputs)/1000.0))):
             string_ = str(1000*idx+in_idx+1) + ' / ' + str(len(Inputs))
             sys.stdout.write("\r%s" % string_)
             sys.stdout.flush()
-            in_db_data.close()
+    in_db_data.close()
 print('')
