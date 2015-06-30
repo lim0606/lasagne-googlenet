@@ -5,6 +5,7 @@ This is code a modefied one from https://github.com/skaae/lasagne-draw/blob/mast
 import numpy as np
 from random import shuffle
 import cv2
+import time
 
 class BatchIterator(object):
     """
@@ -21,6 +22,7 @@ class BatchIterator(object):
 
         self.batchsize = batchsize
         self.testing = testing
+
         if process_func is None:
             process_func = lambda x:x
         self.process_func = process_func
@@ -69,67 +71,50 @@ class ImagenetBatchIterator(object):
      Cyclic Iterators over batch indexes. Permutes and restarts at end
     """
 
-    def __init__(self, batchsize, img_height, img_width, datalist, data_root=None, testing=False):
-        """
-            datalist = '/media/data1/image/ilsvrc12/train.txt'
-            data_root = '/media/data1/image/ilsvrc12/train/'
-        """
-        #f = open('/media/data1/image/ilsvrc12/train.txt', 'r')
-        #data_root = '/media/data1/image/ilsvrc12/train/'
-        f = open(datalist, 'r')
-        
-        data = []
-        for line in f:
-            #print line
-            [filename, remain] = line.split(" ")
-            [label, remain] = remain.split("\n")
+    def __init__(self, batchsize, database, testing=False):
+        # open data 
+         
+        # initialize data
+        self.in_db_data = lmdb.open(lmdb_data_name, readonly=True)
+        self.n = int(self.in_db_data.stat()['entries'])) # number of data
 
-            if data_root is not None:
-                filename = data_root + filename
-            data.append( (filename, label) )
-        f.close()
-        #print "len(data): ", len(data)
-        #print data[0]
-        #print data[0][0]
-        shuffle(data)
-        #print data[0]
-        
-        self.data = data
-        self.n = len(self.data)
-        print "self.n: ", self.n
-        
-        self.img_height = img_height
-        self.img_width = img_width
-        (filename, label) = data[0]
-        img = cv2.imread(filename)
-        img = cv2.resize(img, (img_width, img_height), interpolation=cv2.INTER_CUBIC)
-        if img.ndim == 2:
-            self.img_channels = 1
-        else:
-            self.img_channels = img.shape[2]
+        with self.in_db_data.begin() as in_txn:
+            cursor = in_txn.cursor()
+            cursor.first()
+            (key, value) = curosr.item()
+            img_dat = bytes(value)
+            (img, label) = pickle.loads(img_dat)     
+            self.img_height = img.shape[1] # img = np array with (channels, height, width)
+            self.img_width = img.shape[2]
+            self.img_channels = img.shape[0]
 
+        self.in_txn = self.in_db_data.begin()
+        self.cursor = self.in_txn.cursor()
+        self.cursor.first()
+ 
         self.batchsize = batchsize
         self.testing = testing
-        #if process_func is None:
-        #    process_func = lambda x:x
-        def process_func((filename, label)):
-            img = cv2.imread(filename)
-            img = cv2.resize(img, (self.img_width, self.img_height), interpolation=cv2.INTER_CUBIC)
-            img = np.transpose(img, [2, 0, 1]).reshape((1, self.img_channels, self.img_width, self.img_height)) 
-            return img
-        def process_label((filename, label)): 
-            return int(label)
+
+        if process_func is None:
+            process_func = lambda x:x
         self.process_func = process_func
-        self.process_label = process_label
 
-        if not self.testing:
-            self.createindices = lambda: np.random.permutation(self.n)
-        else: # testing == true
+        if self.testing:
             assert self.n % self.batchsize == 0, "for testing n must be multiple of batch size"
-            self.createindices = lambda: range(self.n)
 
-        self.perm = self.createindices()
         assert self.n > self.batchsize
+
+        self.data_batches = np.zeros((self.batchsize, self.img_channels, self.img_width, self.img_height))
+        self.labels_batches = np.zeros((self.batchsize,)).astype(int)
+
+        print "n: ", self.n
+        print "img_height: ", self.img_height
+        print "img_width: ", self.img_width
+        print "img_channels: ", self.img_channels
+
+    def __del__(self):
+        self.cursor.close()
+        self.in_db_data.close()
 
     def __iter__(self):
         return self
@@ -137,28 +122,28 @@ class ImagenetBatchIterator(object):
     def __next__(self):
         return self.next()
 
-    def _get_permuted_batches(self,n_batches):
-        # return a list of permuted batch indeces
-        batches = []
-        for i in range(n_batches):
-
-            # extend random permuation if shorter than batchsize
-            if len(self.perm) <= self.batchsize:
-                new_perm = self.createindices()
-                self.perm = np.hstack([self.perm, new_perm])
-
-            batches.append(self.perm[:self.batchsize])
-            self.perm = self.perm[self.batchsize:]
-        return batches
-
     def next(self):
-        batch = self._get_permuted_batches(1)[0]   # extract a single batch
-        data_batches = np.zeros((self.batchsize, self.img_channels, self.img_width, self.img_height))
-        labels_batches = np.zeros((self.batchsize,)).astype(int)
-        for (i, idx) in enumerate(batch): 
-            data_batches[i,:,:,:] = self.process_func(self.data[idx])
-            labels_batches[i] = self.process_label(self.data[idx]) 
-        return [data_batches, labels_batches]
+        start_time = time.time()
+        try: 
+            for (i, idx) in enumerate(batch):
+                for i in xrange(np.random.randint(self.batchsize))
+                    if cursor.next() is False:
+                        cursor.first()
+
+                (key, value) = cursor.item()
+                img_dat = bytes(value)
+                (img, label) = pickle.loads(img_dat)
+  
+                data_batches[i,:,:,:] = self.process_func(img)
+                labels_batches[i] = self.process_label(label)
+        except:
+            self.cursor.close() 
+            self.in_db_data.close()
+            raise NameError('Something wrong')
+        end_time = time.time()
+        print "imagenet batchiterator: ", end_time - start_time, " sec"
+
+        return [self.data_batches, self.labels_batches]
 
 
 def threaded_generator(generator, num_cached=50):
