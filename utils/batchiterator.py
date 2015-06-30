@@ -4,8 +4,16 @@ This is code a modefied one from https://github.com/skaae/lasagne-draw/blob/mast
 
 import numpy as np
 from random import shuffle
+import lmdb
 import cv2
 import time
+import sys
+
+# pickle
+try:
+    import cPickle as pickle
+except:
+    import pickle
 
 class BatchIterator(object):
     """
@@ -71,24 +79,24 @@ class ImagenetBatchIterator(object):
      Cyclic Iterators over batch indexes. Permutes and restarts at end
     """
 
-    def __init__(self, batchsize, database, testing=False):
+    def __init__(self, batchsize, database, testing=False, process_func=None):
         # open data 
          
         # initialize data
-        self.in_db_data = lmdb.open(lmdb_data_name, readonly=True)
-        self.n = int(self.in_db_data.stat()['entries'])) # number of data
+        self.in_db_data = lmdb.open(database, readonly=True)
+        self.n = int(self.in_db_data.stat()['entries']) # number of data
 
         with self.in_db_data.begin() as in_txn:
             cursor = in_txn.cursor()
             cursor.first()
-            (key, value) = curosr.item()
+            (key, value) = cursor.item()
             img_dat = bytes(value)
             (img, label) = pickle.loads(img_dat)     
             self.img_height = img.shape[1] # img = np array with (channels, height, width)
             self.img_width = img.shape[2]
             self.img_channels = img.shape[0]
 
-        self.in_txn = self.in_db_data.begin()
+        self.in_txn = self.in_db_data.begin(buffers=True)
         self.cursor = self.in_txn.cursor()
         self.cursor.first()
  
@@ -125,21 +133,25 @@ class ImagenetBatchIterator(object):
     def next(self):
         start_time = time.time()
         try: 
-            for (i, idx) in enumerate(batch):
-                for i in xrange(np.random.randint(self.batchsize))
-                    if cursor.next() is False:
-                        cursor.first()
+            for i in xrange(self.batchsize):
+                for j in xrange(np.random.randint(self.batchsize)):
+                    if self.cursor.next() is False:
+                        self.cursor.first()
+                
+                '''if self.cursor.next() is False:
+                    self.cursor.first()'''
 
-                (key, value) = cursor.item()
+                (key, value) = self.cursor.item()
                 img_dat = bytes(value)
                 (img, label) = pickle.loads(img_dat)
   
-                data_batches[i,:,:,:] = self.process_func(img)
-                labels_batches[i] = self.process_label(label)
+                self.data_batches[i,:,:,:] = self.process_func(img)
+                self.labels_batches[i] = label
         except:
             self.cursor.close() 
             self.in_db_data.close()
-            raise NameError('Something wrong')
+            print "Unexpected error:", sys.exc_info()[0]
+            raise 
         end_time = time.time()
         print "imagenet batchiterator: ", end_time - start_time, " sec"
 
