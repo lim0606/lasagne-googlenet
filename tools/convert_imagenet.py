@@ -7,6 +7,8 @@ import lmdb
 import re, fileinput, math
 import numpy as np
 
+import theano
+
 # pickle
 try:
     import cPickle as pickle
@@ -41,7 +43,8 @@ for idx in range(int(math.ceil(len(Inputs)/1000.0))):
             #im = caffe.io.load_image(in_)
             im = cv2.imread(in_)
             im = cv2.resize(im, (256, 256), interpolation=cv2.INTER_CUBIC)
-            im = np.transpose(im, [2, 1, 0]) # channel, height, width 
+            im = np.transpose(im, [2, 1, 0]) # channel, height, width
+            im = im.astype(theano.config.floatX) 
 
             # serialize image data
             #im_dat = caffe.io.array_to_datum(im.astype(float).transpose((2, 0, 1)))
