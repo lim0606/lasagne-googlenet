@@ -15,6 +15,8 @@ try:
 except:
     import pickle
 
+import caffe
+
 class BatchIterator(object):
     """
      Cyclic Iterators over batch indexes. Permutes and restarts at end
@@ -79,9 +81,10 @@ class ImagenetBatchIterator(object):
      Cyclic Iterators over batch indexes. Permutes and restarts at end
     """
 
-    def __init__(self, batchsize, database, testing=False, process_func=None):
-        # open data 
+    def __init__(self, batchsize, database, testing=False, process_func=None, use_caffe=True):
          
+        self.use_caffe = use_caffe # whether lmdb data base is stored in caffe form 
+
         # initialize data
         self.in_db_data = lmdb.open(database, readonly=True)
         self.n = int(self.in_db_data.stat()['entries']) # number of data
@@ -90,13 +93,25 @@ class ImagenetBatchIterator(object):
             cursor = in_txn.cursor()
             cursor.first()
             (key, value) = cursor.item()
-            img_dat = bytes(value)
-            (img, label) = pickle.loads(img_dat)     
+
+            if self.use_caffe:
+                raw_datum = bytes(value)
+
+                datum = caffe.proto.caffe_pb2.Datum()
+                datum.ParseFromString(raw_datum)
+
+                #(im, label_) = pickle.loads(im_dat)
+                img = caffe.io.datum_to_array(datum)
+                label = datum.label
+            else:
+                img_dat = bytes(value)
+                (img, label) = pickle.loads(img_dat)
+
             self.img_height = img.shape[1] # img = np array with (channels, height, width)
             self.img_width = img.shape[2]
             self.img_channels = img.shape[0]
 
-        self.in_txn = self.in_db_data.begin(buffers=True)
+        self.in_txn = self.in_db_data.begin()
         self.cursor = self.in_txn.cursor()
         self.cursor.first()
  
@@ -115,10 +130,10 @@ class ImagenetBatchIterator(object):
         self.data_batches = np.zeros((self.batchsize, self.img_channels, self.img_width, self.img_height))
         self.labels_batches = np.zeros((self.batchsize,)).astype(int)
 
-        print "n: ", self.n
-        print "img_height: ", self.img_height
-        print "img_width: ", self.img_width
-        print "img_channels: ", self.img_channels
+        #print "n: ", self.n
+        #print "img_height: ", self.img_height
+        #print "img_width: ", self.img_width
+        #print "img_channels: ", self.img_channels
 
     def __del__(self):
         self.cursor.close()
@@ -131,7 +146,7 @@ class ImagenetBatchIterator(object):
         return self.next()
 
     def next(self):
-        start_time = time.time()
+        #start_time = time.time()
         try: 
             for i in xrange(self.batchsize):
                 for j in xrange(np.random.randint(self.batchsize)):
@@ -142,8 +157,19 @@ class ImagenetBatchIterator(object):
                     self.cursor.first()'''
 
                 (key, value) = self.cursor.item()
-                img_dat = bytes(value)
-                (img, label) = pickle.loads(img_dat)
+
+                if self.use_caffe:
+                    raw_datum = bytes(value)
+
+                    datum = caffe.proto.caffe_pb2.Datum()
+                    datum.ParseFromString(raw_datum)
+
+                    #(im, label_) = pickle.loads(im_dat)
+                    img = caffe.io.datum_to_array(datum)
+                    label = datum.label
+                else:
+                    img_dat = bytes(value)
+                    (img, label) = pickle.loads(img_dat)
   
                 self.data_batches[i,:,:,:] = self.process_func(img)
                 self.labels_batches[i] = label
@@ -152,8 +178,8 @@ class ImagenetBatchIterator(object):
             self.in_db_data.close()
             print "Unexpected error:", sys.exc_info()[0]
             raise 
-        end_time = time.time()
-        print "imagenet batchiterator: ", end_time - start_time, " sec"
+        #end_time = time.time()
+        #print "imagenet batchiterator: ", end_time - start_time, " sec"
 
         return [self.data_batches, self.labels_batches]
 
