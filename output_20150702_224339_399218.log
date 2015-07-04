@@ -1,0 +1,14 @@
+Experiment Log: GoogLeNet with BN
+Epoch: 1, train_loss=11.365617, valid_loss=11.148000
+Epoch: 2, train_loss=11.071847, valid_loss=10.560970
+Epoch: 3, train_loss=10.585466, valid_loss=9.673115
+Epoch: 4, train_loss=9.717049, valid_loss=8.677876
+Epoch: 5, train_loss=8.767603, valid_loss=7.569903
+Epoch: 6, train_loss=7.679972, valid_loss=6.374845
+Epoch: 7, train_loss=6.445942, valid_loss=5.154170
+Epoch: 8, train_loss=5.248291, valid_loss=4.097392
+Epoch: 9, train_loss=4.269946, valid_loss=3.255410
+Epoch: 10, train_loss=nan, valid_loss=nan
+Epoch: 11, train_loss=nan, valid_loss=nan
+Epoch: 12, train_loss=nan, valid_loss=nan
+Epoch: 13, train_loss=nan, valid_loss=nan

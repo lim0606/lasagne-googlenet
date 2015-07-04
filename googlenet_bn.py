@@ -18,26 +18,15 @@ from utils.updates import adagrad_w_prior
 try:
     import cPickle as pickle
 except:
-    #import pickle
-    print("hi")
+    import pickle
+
+import time
 
 # Step 0: load data ####################################
-#import gzip, cPickle
 
-#f = gzip.open('mnist.pkl.gz', 'rb')
-#(X_train, y_train), (X_valid, y_valid), (X_test, y_test) = cPickle.load(f)
-#f.close()
-#print "X_train.shape: ", X_train.shape
-#print "X_train[0,:]", X_train[0,:]
-#print "y_train.shape: ", y_train.shape
-X_train = np.random.rand(128, 3, 224, 224).astype(theano.config.floatX)
-y_train = np.random.randint(0, 1000, 128).reshape((128,))
-X_valid = np.random.rand(128, 3, 224, 224).astype(theano.config.floatX)
-y_valid = np.random.randint(0, 1000, 128).reshape((128,))
 
- 
 # Step 1: initialization ##############################
-num_data = X_train.shape[0]
+#num_data = 
 batchsize = 32
 update_rules = 'momentum' # you can choose either 1) momentum, 2) adagrad, and 3) adagrad_w_prior. 
 num_epochs = 70
@@ -45,6 +34,16 @@ num_epochs = 70
 img_height = 224
 img_width = 224
 n_channels = 3
+
+learning_rate = 0.01
+
+from utils import batchiterator
+batchitertrain = batchiterator.ImagenetBatchCropIterator(batchsize=batchsize, crop='random', crop_height=img_height, crop_width=img_width, flip=True, database='/media/data0/image/ilsvrc12/ilsvrc12_train_lmdb')
+num_data = batchitertrain.n
+batchitertrain = batchiterator.threaded_generator(batchitertrain,10)
+
+batchiterval = batchiterator.ImagenetBatchCropIterator(batchsize=batchsize, crop='center', crop_height=img_height, crop_width=img_width, flip=False, database='/media/data1/image/ilsvrc12/ilsvrc12_val_lmdb')
+batchiterval = batchiterator.threaded_generator(batchiterval,10)
 
 # Step 2: build model -> equals to build model #########
 # architecture as follows; 
@@ -686,14 +685,14 @@ loss1_acc_top1 = theano.tensor.mean(
     dtype=theano.config.floatX)
 
 loss1_preds_top5 = theano.tensor.argsort(loss1_probs, axis=1)[:,:5]
-'''loss1_acc_top5 = theano.tensor.mean(
+loss1_acc_top5 = theano.tensor.mean(
     theano.tensor.eq(loss1_preds_top5[:,0], labels) + 
     theano.tensor.eq(loss1_preds_top5[:,1], labels) +
     theano.tensor.eq(loss1_preds_top5[:,2], labels) +
     theano.tensor.eq(loss1_preds_top5[:,3], labels) +
     theano.tensor.eq(loss1_preds_top5[:,4], labels),
     dtype=theano.config.floatX)
-'''
+
 l_inception_4b_1x1 = dnn.Conv2DDNNLayer(
     l_inception_4a_output,
     num_filters=160,
@@ -1165,14 +1164,14 @@ loss2_acc_top1 = theano.tensor.mean(
     dtype=theano.config.floatX)
 
 loss2_preds_top5 = theano.tensor.argsort(loss2_probs, axis=1)[:,:5]
-'''loss2_acc_top5 = theano.tensor.mean(
+loss2_acc_top5 = theano.tensor.mean(
     theano.tensor.eq(loss2_preds_top5[:,0], labels) +
     theano.tensor.eq(loss2_preds_top5[:,1], labels) +
     theano.tensor.eq(loss2_preds_top5[:,2], labels) +
     theano.tensor.eq(loss2_preds_top5[:,3], labels) +
     theano.tensor.eq(loss2_preds_top5[:,4], labels),
     dtype=theano.config.floatX)
-'''
+
 l_inception_4e_1x1 = dnn.Conv2DDNNLayer(
     l_inception_4d_output,
     num_filters=256,
@@ -1616,14 +1615,14 @@ loss3_acc_top1 = theano.tensor.mean(
     dtype=theano.config.floatX)
 
 loss3_preds_top5 = theano.tensor.argsort(loss3_probs, axis=1)[:,:5]
-'''loss3_acc_top5 = theano.tensor.mean(
+loss3_acc_top5 = theano.tensor.mean(
     theano.tensor.eq(loss3_preds_top5[:,0], labels) +
     theano.tensor.eq(loss3_preds_top5[:,1], labels) +
     theano.tensor.eq(loss3_preds_top5[:,2], labels) +
     theano.tensor.eq(loss3_preds_top5[:,3], labels) +
     theano.tensor.eq(loss3_preds_top5[:,4], labels),
     dtype=theano.config.floatX)
-'''
+
 loss = loss1 * 0.3 + loss2 * 0.3 + loss3 * 1 
 
 print "Network Architecture ---------------"
@@ -1642,23 +1641,41 @@ for param in all_params:
 #   you can choose update rules 
 #   1) momentum, 2) adagrad, and 3) adagrad_w_prior
 # - momentum is not really work for googlenet (exploding easily)
+lr = theano.tensor.scalar('lr', dtype=theano.config.floatX)
 if update_rules == 'momentum':
+    base_lr = np.array(learning_rate, theano.config.floatX)
+    lr_policy = 'poly'
+    if lr_policy == 'fixed':
+        base_lr = np.array(learning_rate, theano.config.floatX)
+    elif lr_policy == 'inv':
+        gamma = 0.2
+        power = 0.5
+
+        gamma = np.array(gamma, theano.config.floatX)
+        power = np.array(power, dtype=theano.config.floatX)
+    elif lr_policy == 'poly':
+        power = 0.5
+
+        power = np.array(power, dtype=theano.config.floatX)
+        max_iter = np.array(num_epochs * int(num_data / batchsize), dtype=theano.config.floatX)
+    else:
+        raise NotImplementedError('hi')
     updates = lasagne.updates.momentum(
         loss_or_grads=all_grads,
         params=all_params,
-        learning_rate=0.01,
+        learning_rate=lr, #0.01
         momentum=0.9)
 elif update_rules == 'adagrad':
     updates = lasagne.updates.adagrad(
         loss_or_grads=all_grads,
         params=all_params,
-        learning_rate=0.01,
+        learning_rate=lr, #0.01,
     )
 elif update_rules == 'adagrad_w_prior':
     updates = adagrad_w_prior(
         loss_or_grads=all_grads,
         params=all_params,
-        learning_rate=0.01,
+        learning_rate=lr, #0.01,
         batchsize=batchsize,
         num_data=num_data,
     )
@@ -1666,13 +1683,12 @@ else:
     raise ValueError('Please specify learning rule')
 
 print "Compiling funtions..."
-import time
 start_time = time.time()
 # - create a function that also updates the weights
 # - this function takes in 2 arguments: the input batch of images and a
 #   target vector (the y's) and returns a list with a single scalar
 #   element (the loss)
-train_fn = theano.function(inputs=[l_in.input_var, labels],
+train_fn = theano.function(inputs=[l_in.input_var, labels, lr],
                            outputs=[loss],
                            updates=updates,
                            allow_input_downcast=True)
@@ -1686,13 +1702,13 @@ train_fn = theano.function(inputs=[l_in.input_var, labels],
 valid_fn = theano.function(inputs=[l_in.input_var, labels],
                            outputs=[loss,
                                     loss1_acc_top1,
-                                    #loss1_acc_top5,
+                                    loss1_acc_top5,
                                     loss1_probs,
                                     loss2_acc_top1,
-                                    #loss2_acc_top5,
+                                    loss2_acc_top5,
                                     loss2_probs,
                                     loss3_acc_top1,
-                                    #loss3_acc_top5, 
+                                    loss3_acc_top5, 
                                     loss3_probs],
                            allow_input_downcast=True)
 end_time = time.time()
@@ -1702,52 +1718,66 @@ print "%.3f sec" % (end_time-start_time)
 
 print("Starting training...")
 
-from utils import batchiterator
-batchitertrain = batchiterator.BatchIterator(range(num_data), batchsize, data=(X_train, y_train))
-batchitertrain = batchiterator.threaded_generator(batchitertrain,3)
-                                                                                
-batchiterval = batchiterator.BatchIterator(range(X_valid.shape[0]), batchsize, data=(X_valid, y_valid)) 
-batchiterval = batchiterator.threaded_generator(batchiterval,3)             
-
 import datetime
 now = datetime.datetime.now()
 output_filename = "output_%04d%02d%02d_%02d%02d%02d_%03d.log" % (now.year, now.month, now.day, now.hour, now.minute, now.second, now.microsecond)
 with open(output_filename, "w") as f:
     f.write("Experiment Log: GoogLeNet with BN\n")
                                                                         
-#num_epochs = 100
 for epoch_num in range(num_epochs):
-    start_time = time.time()
+    #start_time = time.time()
 
     # iterate over training minibatches and update the weights
-    num_batches_train = int(np.ceil(len(X_train) / batchsize))
+    num_batches_train = int(np.ceil(num_data / batchsize))
     train_losses = []
     for batch_num in range(num_batches_train):
-	start_time = time.time()
+	#start_time = time.time()
         '''batch_slice = slice(batchsize * batch_num,
                             batchsize * (batch_num + 1))
         X_batch = X_train[batch_slice]
         y_batch = y_train[batch_slice]'''
         [X_batch, y_batch] = batchitertrain.next()
 
+        # learning rate scheduling
+        if update_rules == 'momentum':
+            iter = np.array(epoch_num * batchsize + batch_num + 1, dtype=theano.config.floatX)
+            if lr_policy == 'fixed':
+                learning_rate = base_lr
+            elif lr_policy == 'step':
+                raise NotImplementedError('step')
+            elif lr_policy == 'inv':
+                learning_rate = base_lr * ((1 + gamma * iter) ** (-power))
+            elif lr_policy == 'poly':
+                learning_rate = base_lr * ((1 - iter / max_iter) ** (-power))
+            else:
+                raise NotImplementedError('lr_policy')
+
         #loss, = train_fn(X_batch, y_batch)
-        loss, = train_fn(X_batch, y_batch)
+        loss, = train_fn(X_batch, y_batch, learning_rate)
          
         train_losses.append(loss)
 
-        #if (epoch_num * batchsize + batch_num + 1) is 1:
-        #    start_time = time.time()
+        if (epoch_num * num_batches_train + batch_num + 1) is 1:
+            start_time = time.time()
 
-        '''if (epoch_num * batchsize + batch_num + 1) % 10 is 0:
-            end_time = time.time()
-            
+        if (epoch_num * num_batches_train + batch_num + 1) % 40 is 0:
+            end_time = time.time()            
             out_str = "Iter: %d, train_loss=%f    (%.3f sec)" % (epoch_num * num_batches_train + batch_num + 1, loss, end_time-start_time)
             print(out_str)
             start_time = time.time()
-        '''
-    end_time = time.time()
-    out_str = "Iter: %d, train_loss=%f    (%.3f sec)" % (epoch_num * num_batches_train + batch_num + 1, loss, end_time-start_time)
-    print(out_str)
+
+        if (epoch_num * num_batches_train + batch_num + 1) % 40000 == 0:
+            # save
+            weights_save = lasagne.layers.get_all_param_values([l_loss1_classifier, l_loss2_classifier, l_loss3_classifier])
+            pickle.dump( weights_save, open( "googlenet_bn_iter_%d.weight.pkl" % (epoch_num * batchsize + batch_num + 1), "wb" ) )
+            # load
+            #weights_load = pickle.load( open( "weights.pkl", "rb" ) )
+            #lasagne.layers.set_all_param_values(output_layer, weights_load)
+        
+    #end_time = time.time()
+    #out_str = "Iter: %d, train_loss=%f    (%.3f sec)" % (epoch_num * num_batches_train + batch_num + 1, loss, end_time-start_time)
+    #print(out_str)
+
     # aggregate training losses for each minibatch into scalar
     train_loss = np.mean(train_losses)
 
@@ -1763,14 +1793,14 @@ for epoch_num in range(num_epochs):
         [X_batch, y_batch] = batchiterval.next()
 
         #loss, probabilities_batch = valid_fn(X_batch, y_batch)
-        '''loss, \
+        loss, \
         loss1_acc_top1, loss1_acc_top5, loss1_probs, \
         loss2_acc_top1, loss2_acc_top5, loss2_probs, \
-        loss3_acc_top1, loss3_acc_top5, loss3_probs = valid_fn(X_batch, y_batch)'''
-        loss, \
+        loss3_acc_top1, loss3_acc_top5, loss3_probs = valid_fn(X_batch, y_batch)
+        '''loss, \
         loss1_acc_top1, loss1_probs, \
         loss2_acc_top1, loss2_probs, \
-        loss3_acc_top1, loss3_probs = valid_fn(X_batch, y_batch)
+        loss3_acc_top1, loss3_probs = valid_fn(X_batch, y_batch)'''
         #print(loss3_probs.shape)
 
         valid_losses.append(loss)
@@ -1791,10 +1821,14 @@ for epoch_num in range(num_epochs):
     with open(output_filename, "a") as f:
             f.write(out_str + "\n")
 
-    if (epoch_num + 1) % 100 == 0:
+    '''if (epoch_num + 1) % 100 == 0:
         # save
         weights_save = lasagne.layers.get_all_param_values([l_loss1_classifier, l_loss2_classifier, l_loss3_classifier])
         pickle.dump( weights_save, open( "googlenet_bn_h_%d_z_%d_epoch_%d.weight.pkl" % (hidden_size, z_size, epoch_num), "wb" ) )
         # load
         #weights_load = pickle.load( open( "weights.pkl", "rb" ) )
         #lasagne.layers.set_all_param_values(output_layer, weights_load) 
+    '''
+
+
+
