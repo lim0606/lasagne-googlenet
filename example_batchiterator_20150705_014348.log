@@ -1,0 +1,130 @@
+imagenet batchiterator
+imagenet batchiterator:  0.0173511505127  sec
+imagenet batchiterator:  0.012971162796  sec
+imagenet batchiterator:  0.0106430053711  sec
+imagenet batchiterator:  0.0116732120514  sec
+imagenet batchiterator:  0.0110690593719  sec
+time ( 0 ):  0.0177578926086  sec
+imagenet batchiterator:  0.0117688179016  sec
+time ( 1 ):  3.81469726562e-05  sec
+imagenet batchiterator:  0.0121839046478  sec
+time ( 2 ):  3.79085540771e-05  sec
+imagenet batchiterator:  0.0114209651947  sec
+time ( 3 ):  3.38554382324e-05  sec
+imagenet batchiterator:  0.0115029811859  sec
+time ( 4 ):  3.21865081787e-05  sec
+imagenet batchiterator:  0.0114960670471  sec
+time ( 5 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.0116469860077  sec
+time ( 6 ):  3.71932983398e-05  sec
+imagenet batchiterator:  0.0111308097839  sec
+time ( 7 ):  3.40938568115e-05  sec
+imagenet batchiterator:  0.0114970207214  sec
+time ( 8 ):  4.00543212891e-05  sec
+imagenet batchiterator:  0.0121469497681  sec
+time ( 9 ):  3.31401824951e-05  sec
+imagenet batchiterator:  0.0114002227783  sec
+time ( 10 ):  3.31401824951e-05  sec
+imagenet batchiterator:  0.0109820365906  sec
+time ( 11 ):  3.40938568115e-05  sec
+imagenet batchiterator:  0.0120470523834  sec
+time ( 12 ):  3.60012054443e-05  sec
+imagenet batchiterator:  0.0113270282745  sec
+time ( 13 ):  3.38554382324e-05  sec
+imagenet batchiterator:  0.0102751255035  sec
+time ( 14 ):  3.38554382324e-05  sec
+imagenet batchiterator:  0.0121800899506  sec
+time ( 15 ):  3.60012054443e-05  sec
+imagenet batchiterator:  0.0116121768951  sec
+time ( 16 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.0113639831543  sec
+time ( 17 ):  3.2901763916e-05  sec
+imagenet batchiterator:  0.0114130973816  sec
+time ( 18 ):  3.79085540771e-05  sec
+imagenet batchiterator:  0.0102550983429  sec
+time ( 19 ):  3.40938568115e-05  sec
+imagenet batchiterator:  0.0122008323669  sec
+time ( 20 ):  3.19480895996e-05  sec
+imagenet batchiterator:  0.0115160942078  sec
+time ( 21 ):  3.79085540771e-05  sec
+imagenet batchiterator:  0.0117928981781  sec
+time ( 22 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.0121610164642  sec
+time ( 23 ):  3.2901763916e-05  sec
+imagenet batchiterator:  0.0101838111877  sec
+time ( 24 ):  3.2901763916e-05  sec
+imagenet batchiterator:  0.0113410949707  sec
+time ( 25 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.0107359886169  sec
+time ( 26 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.0112540721893  sec
+time ( 27 ):  3.40938568115e-05  sec
+imagenet batchiterator:  0.0110929012299  sec
+time ( 28 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.223412036896  sec
+time ( 29 ):  3.40938568115e-05  sec
+imagenet batchiterator (crop)
+imagenet batchiterator:  0.0156719684601  sec
+imagenet batchiterator:  0.0102097988129  sec
+imagenet batchiterator:  0.0103600025177  sec
+imagenet batchiterator:  0.00996398925781  sec
+imagenet batchiterator:  0.0100629329681  sec
+time ( 0 ):  0.0160148143768  sec
+imagenet batchiterator:  0.00907182693481  sec
+time ( 1 ):  3.60012054443e-05  sec
+imagenet batchiterator:  0.0104949474335  sec
+time ( 2 ):  3.60012054443e-05  sec
+imagenet batchiterator:  0.0100688934326  sec
+time ( 3 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.00939583778381  sec
+time ( 4 ):  3.09944152832e-05  sec
+imagenet batchiterator:  0.0105900764465  sec
+time ( 5 ):  3.60012054443e-05  sec
+imagenet batchiterator:  0.00927209854126  sec
+time ( 6 ):  3.71932983398e-05  sec
+imagenet batchiterator:  0.00949501991272  sec
+time ( 7 ):  3.50475311279e-05  sec
+imagenet batchiterator:  0.0102579593658  sec
+time ( 8 ):  3.60012054443e-05  sec
+imagenet batchiterator:  0.0103409290314  sec
+time ( 9 ):  3.79085540771e-05  sec
+imagenet batchiterator:  0.00992703437805  sec
+time ( 10 ):  3.40938568115e-05  sec
+imagenet batchiterator:  0.0106160640717  sec
+time ( 11 ):  3.40938568115e-05  sec
+imagenet batchiterator:  0.0106449127197  sec
+time ( 12 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.00957083702087  sec
+time ( 13 ):  3.60012054443e-05  sec
+imagenet batchiterator:  0.00974893569946  sec
+time ( 14 ):  3.19480895996e-05  sec
+imagenet batchiterator:  0.0105471611023  sec
+time ( 15 ):  3.60012054443e-05  sec
+imagenet batchiterator:  0.0096960067749  sec
+time ( 16 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.00910401344299  sec
+time ( 17 ):  3.60012054443e-05  sec
+imagenet batchiterator:  0.00992488861084  sec
+time ( 18 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.010525226593  sec
+time ( 19 ):  3.79085540771e-05  sec
+imagenet batchiterator:  0.00997686386108  sec
+time ( 20 ):  3.40938568115e-05  sec
+imagenet batchiterator:  0.00987601280212  sec
+time ( 21 ):  3.38554382324e-05  sec
+imagenet batchiterator:  0.00994896888733  sec
+time ( 22 ):  3.81469726562e-05  sec
+imagenet batchiterator:  0.0100400447845  sec
+time ( 23 ):  3.88622283936e-05  sec
+imagenet batchiterator:  0.0102179050446  sec
+time ( 24 ):  3.50475311279e-05  sec
+imagenet batchiterator:  0.0101120471954  sec
+time ( 25 ):  3.69548797607e-05  sec
+imagenet batchiterator:  0.0104730129242  sec
+time ( 26 ):  3.50475311279e-05  sec
+imagenet batchiterator:  0.00973510742188  sec
+time ( 27 ):  3.2901763916e-05  sec
+imagenet batchiterator:  0.00950884819031  sec
+time ( 28 ):  3.91006469727e-05  sec
+imagenet batchiterator:  0.00973010063171  sec
+time ( 29 ):  3.69548797607e-05  sec
